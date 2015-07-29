@@ -26,6 +26,7 @@ let s:var_mysql_port     = 'b:' . s:prefix . 'mysql_port'
 let s:var_mysql_database = 'b:' . s:prefix . 'mysql_database'
 
 let s:var_mysql_custom_statement = 'b:' . s:prefix . 'mysql_custom_statement'
+let s:var_mysql_select_limit = 'b:' . s:prefix . 'mysql_select_limit'
 " }}}
 
 " Command Line Interface: {{{
@@ -42,11 +43,11 @@ fun! g:PipeMySQL(flag)
   elseif a:flag == "-s"
     call g:PipeMySQL_SelectLogin()
   elseif a:flag == "-r"
-    call g:PipeMySQL_SetRemote()
+    call g:PipeMySQL_EditRemote()
   elseif a:flag == "-i"
-    call g:PipeMySQL_SetLogin()
+    call g:PipeMySQL_EditAccess()
   elseif a:flag == "-d"
-    call g:PipeMySQL_SetDatabase()
+    call g:PipeMySQL_EditDatabase()
 
   else
     echo 'Unrecognized flag'
@@ -217,18 +218,148 @@ fun! g:PipeMySQL_RunCustom()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
+
+fun! g:PipeMySQL_DescribeTable()
+  let l:shell_command = s:Get_SSH_Info()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Login_Info()
+  let l:shell_command .= s:Get_MySQL_Database_To_Use()
+
+  let l:table_name = g:PipeGetCurrentWord()
+  if l:table_name ==? ''
+    echo 'No table name is selected'
+    return
+  endif
+  call writefile(['describe ' . l:table_name . ';'], s:tempfilename, 'w')
+
+  let l:shell_command .= ' -t < ' . s:tempfilename
+
+  call g:Pipe(l:shell_command)
+  call delete(s:tempfilename)
+endfun
+
+fun! g:PipeMySQL_SelectTable(with_limit)
+  let l:shell_command = s:Get_SSH_Info()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Login_Info()
+  let l:shell_command .= s:Get_MySQL_Database_To_Use()
+
+  let l:table_name = g:PipeGetCurrentWord()
+  if l:table_name ==? ''
+    echo 'No table name is selected'
+    return
+  endif
+
+  let l:limit = ''
+  if a:with_limit == 1
+    let l:limit_input = g:PipeGetVar(s:var_mysql_select_limit, "Limit (maximum number of records to show) = ", 2) "2: always prompt
+    if l:limit_input != ''
+      let l:limit = ' limit ' . l:limit_input
+    endif
+  endif
+
+  call writefile(['select * from ' . l:table_name . l:limit . ';'], s:tempfilename, 'w')
+
+  let l:shell_command .= ' -t < ' . s:tempfilename
+
+  call g:Pipe(l:shell_command)
+  call delete(s:tempfilename)
+endfun
+
+fun! g:PipeMySQL_SelectDatabase()
+  let l:shell_command = s:Get_SSH_Info()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Login_Info()
+
+
+  " let l:shell_command .= s:Get_MySQL_Database_To_Use()
+
+  " let l:table_name = g:PipeGetCurrentWord()
+  " if l:table_name ==? ''
+  "   echo 'No table name is selected'
+  "   return
+  " endif
+
+  " let l:limit = ''
+  " if a:with_limit == 1
+  "   let l:limit_input = g:PipeGetVar(s:var_mysql_select_limit, "Limit (maximum number of records to show) = ", 2) "2: always prompt
+  "   if l:limit_input != ''
+  "     let l:limit = ' limit ' . l:limit_input
+  "   endif
+  " endif
+
+  call writefile(['show databases;'], s:tempfilename, 'w')
+
+  let l:shell_command .= ' < ' . s:tempfilename
+
+  echohl String | echon ' Getting database names... (press ctrl-c to abort)' | echohl None
+  let l:output = split(system(l:shell_command))
+  if len(l:output) == 0 || l:output[0] !=? 'Database'
+    echo 'No database name detected'
+    return
+  endif
+  redraw!
+
+  let l:list = ["Select database:"]
+
+  let l:counter = 1
+  for l:item in l:output[1:]
+    call add(l:list, l:counter . '. ' . l:item)
+    let l:counter += 1
+  endfor
+  let l:choice = inputlist(l:list)
+
+  if l:choice < 1 || l:choice >= len(l:list)
+    redraw | echo "Invalid choice"
+  else
+    redraw!
+    let {s:var_mysql_database} = l:output[l:choice]
+    echo 'MySQL Database = ' . {s:var_mysql_database}
+  endif
+
+  " let l:output = ''
+  " call g:Pipe(l:shell_command)
+  " call delete(s:tempfilename)
+endfun
+
+fun! g:PipeMySQL_ListTables()
+  let l:shell_command = s:Get_SSH_Info()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Login_Info()
+  let l:shell_command .= s:Get_MySQL_Database_To_Use()
+
+  call writefile(['show tables;'], s:tempfilename, 'w')
+
+  let l:shell_command .= ' -t < ' . s:tempfilename
+
+  call g:Pipe(l:shell_command)
+  call delete(s:tempfilename)
+endfun
+
+fun! g:PipeMySQL_ListDatabases()
+  let l:shell_command = s:Get_SSH_Info()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Login_Info()
+
+  call writefile(['show databases;'], s:tempfilename, 'w')
+
+  let l:shell_command .= ' -t < ' . s:tempfilename
+
+  call g:Pipe(l:shell_command)
+  call delete(s:tempfilename)
+endfun
 " }}}
 
 
 " Edit: {{{
-fun! g:PipeMySQL_SetRemote()
+fun! g:PipeMySQL_EditRemote()
   let {s:var_ssh_address} = g:PipeGetVar(s:var_ssh_address, 'SSH Address (empty to not use SSH) = ', 2)
   if {s:var_ssh_address} !=? ''
     let {s:var_ssh_port}  = g:PipeGetVar(s:var_ssh_port, 'SSH Port = ', 2)
   endif
 endfun
 
-fun! g:PipeMySQL_SetLogin()
+fun! g:PipeMySQL_EditAccess()
   " Hostname & Port
   let {s:var_mysql_hostname} = g:PipeGetVar(s:var_mysql_hostname, 'MySQL Hostname = ', 2)
   if {s:var_mysql_hostname} !=? ''
@@ -242,9 +373,41 @@ fun! g:PipeMySQL_SetLogin()
   endif
 endfun
 
-fun! g:PipeMySQL_SetDatabase()
-  " TODO:
+fun! g:PipeMySQL_EditDatabase()
+  let {s:var_mysql_database} = g:PipeGetVar(s:var_mysql_database, "MySQL Database = ", 2) "2: always prompt
 endfun
+" }}}
+
+" Mapping: {{{
+" TODO: Find the best way to map keys
+if !exists("g:pipe_no_mappings") || ! g:pipe_no_mappings
+  nmap <leader>rf :call g:PipeMySQL_RunFile()<CR>
+
+  nmap <leader>rl :call g:PipeMySQL_RunLine()<CR>
+  vmap <leader>rl :call g:PipeMySQL_RunLine()<CR>
+
+  nmap <leader>rb :call g:PipeMySQL_RunBlock()<CR>
+  vmap <leader>rb :call g:PipeMySQL_RunBlock()<CR>
+
+  nmap <leader>rs :call g:PipeMySQL_RunLine()<CR>
+  vmap <leader>rs :call g:PipeMySQL_RunBlock()<CR>
+
+  nmap <leader>rc :call g:PipeMySQL_RunCustom()<CR>
+
+  nmap <leader>er :call g:PipeMySQL_EditRemote()<CR>
+  nmap <leader>ea :call g:PipeMySQL_EditAccess()<CR>
+  nmap <leader>ei :call g:PipeMySQL_SelectLogin()<CR>
+  nmap <leader>ed :call g:PipeMySQL_EditDatabase()<CR>
+
+  nmap <leader>dl :call g:PipeMySQL_ListDatabases()<CR>
+  nmap <leader>ds :call g:PipeMySQL_SelectDatabase()<CR>
+
+  nmap <leader>td :call g:PipeMySQL_DescribeTable()<CR>
+  nmap <leader>tl :call g:PipeMySQL_ListTables()<CR>
+  nmap <leader>ts :call g:PipeMySQL_SelectTable(1)<CR>
+  nmap <leader>tS :call g:PipeMySQL_SelectTable(0)<CR>
+
+endif
 " }}}
 
 " vim: foldmethod=marker
