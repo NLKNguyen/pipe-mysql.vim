@@ -44,6 +44,11 @@ fun! g:PipeMySQL_SelectPreset()
     let l:counter += 1
   endfor
 
+  if len(l:list) == 1
+    redraw | echo "No preset info found"
+    return
+  endif
+
   let l:choice = inputlist(l:list)
 
   if l:choice < 1 || l:choice >= len(l:list)
