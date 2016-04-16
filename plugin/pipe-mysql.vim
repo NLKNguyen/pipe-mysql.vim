@@ -8,7 +8,7 @@ if exists("g:loaded_pipemysqldotvim") || &cp
   finish
 endif
 let g:loaded_pipemysqldotvim = 1
-let g:top_or_bottom = 'top'
+let g:pipe_default_cursor_position = 'top'
 
 " Variables: {{{
 " @brief prefix for variables in buffers, help minimize chance of naming conflict
