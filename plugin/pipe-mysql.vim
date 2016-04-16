@@ -188,7 +188,7 @@ fun! g:PipeMySQL_RunLine()
   call delete(s:tempfilename)
 endfun
 
-fun! g:PipeMySQL_RunBlock()
+fun! g:PipeMySQL_RunBlock() range
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
