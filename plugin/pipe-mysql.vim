@@ -181,7 +181,7 @@ fun! g:PipeMySQL_RunLine()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
 
-  call writefile([g:PipeGetCurrentLine()], s:tempfilename, 'w')
+  call writefile([g:PipeGetCurrentLine()], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -200,7 +200,7 @@ fun! g:PipeMySQL_RunBlock() range
     echo 'Nothing is selected'
     return
   endif
-  call writefile(l:textlist, s:tempfilename, 'w')
+  call writefile(l:textlist, s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -220,7 +220,7 @@ fun! g:PipeMySQL_RunCustom()
     unlet {s:var_mysql_custom_statement}
     return
   endif
-  call writefile([l:custom_statement], s:tempfilename, 'w')
+  call writefile([l:custom_statement], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -241,7 +241,7 @@ fun! g:PipeMySQL_TableDescription()
     echo 'No table name is selected'
     return
   endif
-  call writefile(['describe ' . l:table_name . ';'], s:tempfilename, 'w')
+  call writefile(['describe ' . l:table_name . ';'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -274,7 +274,7 @@ fun! g:PipeMySQL_TableSelectAll(...)
     endif
   endif
 
-  call writefile(['select * from ' . l:table_name . l:limit . ';'], s:tempfilename, 'w')
+  call writefile(['select * from ' . l:table_name . l:limit . ';'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -288,7 +288,7 @@ fun! g:PipeMySQL_TableListing()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
 
-  call writefile(['show tables;'], s:tempfilename, 'w')
+  call writefile(['show tables;'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
@@ -303,7 +303,7 @@ fun! g:PipeMySQL_DatabaseSwitching()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
 
-  call writefile(['show databases;'], s:tempfilename, 'w')
+  call writefile(['show databases;'], s:tempfilename, 's')
 
   let l:shell_command .= ' < ' . s:tempfilename
 
@@ -339,7 +339,7 @@ fun! g:PipeMySQL_DatabaseListing()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
 
-  call writefile(['show databases;'], s:tempfilename, 'w')
+  call writefile(['show databases;'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
