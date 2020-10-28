@@ -175,7 +175,7 @@ fun! g:PipeMySQL_RunFile()
   call g:Pipe(l:shell_command)
 endfun
 
-fun! g:PipeMySQL_RunLine()
+fun! g:PipeMySQL_RunLine(format)
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
@@ -183,13 +183,13 @@ fun! g:PipeMySQL_RunLine()
 
   call writefile([g:PipeGetCurrentLine()], s:tempfilename, 's')
 
-  let l:shell_command .= ' -t < ' . s:tempfilename
+  let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
 
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
 
-fun! g:PipeMySQL_RunBlock() range
+fun! g:PipeMySQL_RunBlock(format) range
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
@@ -202,7 +202,7 @@ fun! g:PipeMySQL_RunBlock() range
   endif
   call writefile(l:textlist, s:tempfilename, 's')
 
-  let l:shell_command .= ' -t < ' . s:tempfilename
+  let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
 
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
@@ -374,8 +374,10 @@ if !exists("g:pipemysql_no_mappings") || ! g:pipemysql_no_mappings
     " autocmd Filetype mysql nnoremap <buffer> <leader>rb :call g:PipeMySQL_RunBlock()<CR>
     " autocmd Filetype mysql vnoremap <buffer> <leader>rb :call g:PipeMySQL_RunBlock()<CR>
 
-    autocmd Filetype mysql nnoremap <buffer> <leader>rs :call g:PipeMySQL_RunLine()<CR>
-    autocmd Filetype mysql vnoremap <buffer> <leader>rs :call g:PipeMySQL_RunBlock()<CR>
+    autocmd Filetype mysql nnoremap <buffer> <leader>rs :call g:PipeMySQL_RunLine('table')<CR>
+    autocmd Filetype mysql vnoremap <buffer> <leader>rs :call g:PipeMySQL_RunBlock('table')<CR>
+    autocmd Filetype mysql nnoremap <buffer> <leader>rS :call g:PipeMySQL_RunLine('batch')<CR>
+    autocmd Filetype mysql vnoremap <buffer> <leader>rS :call g:PipeMySQL_RunBlock('batch')<CR>
 
     autocmd Filetype mysql nnoremap <buffer> <leader>rc :call g:PipeMySQL_RunCustom()<CR>
 
