@@ -230,6 +230,25 @@ endfun
 " }}}
 
 " For Table: {{{
+fun! g:PipeMySQL_TableDefinationSQL()
+  let l:shell_command = s:Get_Remote()
+  let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_Access()
+  let l:shell_command .= s:Get_MySQL_Database()
+
+  let l:table_name = g:PipeGetCurrentWord()
+  if l:table_name ==? ''
+    echo 'No table name is selected'
+    return
+  endif
+  call writefile(['show create table ' . l:table_name . ';'], s:tempfilename, 's')
+
+  let l:shell_command .= ' -t < ' . s:tempfilename
+
+  call g:Pipe(l:shell_command)
+  call delete(s:tempfilename)
+endfun
+
 fun! g:PipeMySQL_TableDescription()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
@@ -250,10 +269,7 @@ fun! g:PipeMySQL_TableDescription()
 endfun
 
 fun! g:PipeMySQL_TableSelectAll(...)
-  let l:shell_command = s:Get_Remote()
-  let l:shell_command .= ' mysql '
-  let l:shell_command .= s:Get_MySQL_Access()
-  let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command = s:Prepare_ShellCommand_Head()
 
   let l:table_name = g:PipeGetCurrentWord()
   if l:table_name ==? ''
@@ -375,6 +391,7 @@ if !exists("g:pipemysql_no_mappings") || ! g:pipemysql_no_mappings
     autocmd Filetype mysql nnoremap <buffer> <leader>tl :call g:PipeMySQL_TableListing()<CR>
     autocmd Filetype mysql nnoremap <buffer> <leader>ts :call g:PipeMySQL_TableSelectAll()<CR>
     autocmd Filetype mysql nnoremap <buffer> <leader>td :call g:PipeMySQL_TableDescription()<CR>
+    autocmd Filetype mysql nnoremap <buffer> <leader>tD :call g:PipeMySQL_TableDefinationSQL()<CR>
 endif
 " }}}
 
