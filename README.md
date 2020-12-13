@@ -5,7 +5,7 @@
   </a>
 
   <a href="https://www.patreon.com/Nikyle" title="Donate to this project using Patreon">
-    <img src="https://img.shields.io/badge/support%20me-patreon-red.svg" alt="Patreon donate button" />
+    <img src="https://img.shields.io/badge/sponsor-patreon-red.svg" alt="Patreon donate button" />
   </a>
 
   <a href="https://paypal.me/NLKNguyen" title="Donate one time via PayPal">
@@ -156,8 +156,14 @@ I try to respond to users' feedback and feature requests as much as possible. Ob
   <a href="https://www.buymeacoffee.com/Nikyle" target="_blank">
       <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height=44 />
   </a>
-
 </p>
+
+<a href="https://github.com/NLKNguyen/papercolor-theme/graphs/contributors">
+  <!-- <img src="https://contributors-img.web.app/image?repo=NLKNguyen/pipe-mysql.vim" /> -->
+  <img src="https://user-images.githubusercontent.com/4667129/102023589-7f217600-3d41-11eb-9e55-0e906c0d7bf5.png" />
+</a>
+
+    Thanks to all contributors who make pipe-mysql.vim great! ❤️
 
 # 📝 License
 
