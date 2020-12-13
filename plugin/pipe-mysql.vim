@@ -230,7 +230,7 @@ endfun
 " }}}
 
 " For Table: {{{
-fun! g:PipeMySQL_TableDefinationSQL()
+fun! g:PipeMySQL_TableDefinition()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
@@ -393,7 +393,7 @@ if !exists("g:pipemysql_no_mappings") || ! g:pipemysql_no_mappings
     autocmd Filetype mysql nnoremap <buffer> <leader>tl :call g:PipeMySQL_TableListing()<CR>
     autocmd Filetype mysql nnoremap <buffer> <leader>ts :call g:PipeMySQL_TableSelectAll()<CR>
     autocmd Filetype mysql nnoremap <buffer> <leader>td :call g:PipeMySQL_TableDescription()<CR>
-    autocmd Filetype mysql nnoremap <buffer> <leader>tD :call g:PipeMySQL_TableDefinationSQL()<CR>
+    autocmd Filetype mysql nnoremap <buffer> <leader>tD :call g:PipeMySQL_TableDefinition()<CR>
 endif
 " }}}
 
