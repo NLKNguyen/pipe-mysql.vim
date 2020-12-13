@@ -158,7 +158,7 @@ I try to respond to users' feedback and feature requests as much as possible. Ob
   </a>
 </p>
 
-<a href="https://github.com/NLKNguyen/papercolor-theme/graphs/contributors">
+<a href="https://github.com/NLKNguyen/pipe-mysql.vim/graphs/contributors">
   <!-- <img src="https://contributors-img.web.app/image?repo=NLKNguyen/pipe-mysql.vim" /> -->
   <img src="https://user-images.githubusercontent.com/4667129/102023589-7f217600-3d41-11eb-9e55-0e906c0d7bf5.png" />
 </a>
