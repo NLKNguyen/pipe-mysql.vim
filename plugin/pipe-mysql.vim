@@ -169,6 +169,7 @@ endfun
 
 fun! s:Get_Pager_Option()
   return g:pipe_mysql_pager
+endfun
 " }}}
 
 " Run: {{{
@@ -252,6 +253,7 @@ fun! g:PipeMySQL_TableDefinition()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -271,6 +273,7 @@ fun! g:PipeMySQL_TableDescription()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -301,6 +304,7 @@ fun! g:PipeMySQL_TableSelectAll(...)
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -315,6 +319,7 @@ fun! g:PipeMySQL_TableListing()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -366,6 +371,7 @@ fun! g:PipeMySQL_DatabaseListing()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
