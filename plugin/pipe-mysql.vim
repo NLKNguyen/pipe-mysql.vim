@@ -33,12 +33,6 @@ if !exists("g:pipemysql_login_info")
   let g:pipemysql_login_info = []
 endif
 
-" @brief string for pager
-if !exists("g:pipemysql_pager")
-  let g:pipemysql_pager = ''
-endif
-" }}}
-
 " Edit Info: {{{
 fun! g:PipeMySQL_SelectPreset()
   let l:list = ["Select login info:"]
@@ -170,6 +164,8 @@ endfun
 fun! s:Get_Pager_Option()
   if exists('g:pipemysql_pager')
     return ' | ' . g:pipemysql_pager
+  endif
+  return ''
 endfun
 " }}}
 
