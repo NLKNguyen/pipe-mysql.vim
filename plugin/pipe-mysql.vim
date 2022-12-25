@@ -34,8 +34,8 @@ if !exists("g:pipemysql_login_info")
 endif
 
 " @brief string for pager
-if !exists("g:pipe_mysql_pager")
-  let g:pipe_mysql_pager = ''
+if !exists("g:pipemysql_pager")
+  let g:pipemysql_pager = ''
 endif
 " }}}
 
@@ -168,7 +168,7 @@ fun! s:Get_MySQL_Database()
 endfun
 
 fun! s:Get_Pager_Option()
-  return g:pipe_mysql_pager
+  return g:pipemysql_pager
 endfun
 " }}}
 
