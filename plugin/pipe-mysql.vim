@@ -168,7 +168,8 @@ fun! s:Get_MySQL_Database()
 endfun
 
 fun! s:Get_Pager_Option()
-  return ' | ' . g:pipemysql_pager
+  if exists('g:pipemysql_pager')
+    return ' | ' . g:pipemysql_pager
 endfun
 " }}}
 
