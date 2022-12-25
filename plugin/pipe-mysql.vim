@@ -9,7 +9,6 @@ if exists("g:loaded_pipemysqldotvim") || &cp
 endif
 let g:loaded_pipemysqldotvim = 1
 let g:pipe_default_cursor_position = 'top'
-
 " Variables: {{{
 " @brief prefix for variables in buffers, help minimize chance of naming conflict
 let s:prefix = 'ac59330d' 
@@ -32,6 +31,11 @@ let s:var_mysql_select_limit     = 'b:' . s:prefix . 'mysql_select_limit'
 " @brief list of preset login info
 if !exists("g:pipemysql_login_info")
   let g:pipemysql_login_info = []
+endif
+
+" @brief string for pager
+if !exists("g:pipe_mysql_pager")
+  let g:pipe_mysql_pager = ''
 endif
 " }}}
 
@@ -163,6 +167,8 @@ fun! s:Get_MySQL_Database()
   return ' ' . g:PipeGetVar(s:var_mysql_database, 'MySQL Database = ') . ' '
 endfun
 
+fun! s:Get_Pager_Option()
+  return g:pipe_mysql_pager
 " }}}
 
 " Run: {{{
@@ -171,7 +177,7 @@ fun! g:PipeMySQL_RunFile()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= ' -t < ' . expand('%:p')
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
 endfun
 
@@ -184,7 +190,8 @@ fun! g:PipeMySQL_RunLine(format)
   call writefile([g:PipeGetCurrentLine()], s:tempfilename, 's')
 
   let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
+  
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -203,7 +210,7 @@ fun! g:PipeMySQL_RunBlock(format) range
   call writefile(l:textlist, s:tempfilename, 's')
 
   let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -223,7 +230,7 @@ fun! g:PipeMySQL_RunCustom()
   call writefile([l:custom_statement], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
