@@ -153,7 +153,12 @@ fun! s:Get_MySQL_Access()
 
   if l:mysql_username !=? ''
     let l:mysql_password = g:PipeGetVar(s:var_mysql_password, 'MySQL Password = ', 0)
-    let l:login_info .= " -u " . l:mysql_username  . " -p'" . l:mysql_password . "' "
+    if l:mysql_password !=? ''
+      let l:password_option = " -p'" . l:mysql_password . "' "
+    else
+      let l:password_option = ''
+    endif
+    let l:login_info .= " -u " . l:mysql_username  . l:password_option
   endif
 
   return l:login_info
