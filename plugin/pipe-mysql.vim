@@ -9,7 +9,6 @@ if exists("g:loaded_pipemysqldotvim") || &cp
 endif
 let g:loaded_pipemysqldotvim = 1
 let g:pipe_default_cursor_position = 'top'
-
 " Variables: {{{
 " @brief prefix for variables in buffers, help minimize chance of naming conflict
 let s:prefix = 'ac59330d' 
@@ -33,7 +32,6 @@ let s:var_mysql_select_limit     = 'b:' . s:prefix . 'mysql_select_limit'
 if !exists("g:pipemysql_login_info")
   let g:pipemysql_login_info = []
 endif
-" }}}
 
 " Edit Info: {{{
 fun! g:PipeMySQL_SelectPreset()
@@ -153,7 +151,12 @@ fun! s:Get_MySQL_Access()
 
   if l:mysql_username !=? ''
     let l:mysql_password = g:PipeGetVar(s:var_mysql_password, 'MySQL Password = ', 0)
-    let l:login_info .= " -u " . l:mysql_username  . " -p'" . l:mysql_password . "' "
+    if l:mysql_password !=? ''
+      let l:password_option = " -p'" . l:mysql_password . "' "
+    else
+      let l:password_option = ''
+    endif
+    let l:login_info .= " -u " . l:mysql_username  . l:password_option
   endif
 
   return l:login_info
@@ -163,6 +166,20 @@ fun! s:Get_MySQL_Database()
   return ' ' . g:PipeGetVar(s:var_mysql_database, 'MySQL Database = ') . ' '
 endfun
 
+fun! s:Get_Pager_Option()
+  if exists('g:pipemysql_pager')
+    return ' | ' . g:pipemysql_pager
+  endif
+  return ''
+endfun
+
+fun! s:Get_MySQL_Option()
+  if exists('g:pipemysql_option')
+    return g:pipemysql_option
+  endif
+  return ''
+endfun
+
 " }}}
 
 " Run: {{{
@@ -170,8 +187,9 @@ fun! g:PipeMySQL_RunFile()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
+  let l:shell_command .= s:Get_MySQL_Option()
   let l:shell_command .= ' -t < ' . expand('%:p')
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
 endfun
 
@@ -180,11 +198,13 @@ fun! g:PipeMySQL_RunLine(format)
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile([g:PipeGetCurrentLine()], s:tempfilename, 's')
 
   let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
+  
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -194,6 +214,7 @@ fun! g:PipeMySQL_RunBlock(format) range
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:textlist = g:PipeGetSelectedTextAsList()
   if len(l:textlist) == 0
@@ -203,7 +224,7 @@ fun! g:PipeMySQL_RunBlock(format) range
   call writefile(l:textlist, s:tempfilename, 's')
 
   let l:shell_command .= ' --' . a:format . ' < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -213,6 +234,7 @@ fun! g:PipeMySQL_RunCustom()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:custom_statement = g:PipeGetVar(s:var_mysql_custom_statement, "MySQL Statement » ", 11) "11: always prompt
   if l:custom_statement ==? ''
@@ -223,7 +245,7 @@ fun! g:PipeMySQL_RunCustom()
   call writefile([l:custom_statement], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
-
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -235,6 +257,7 @@ fun! g:PipeMySQL_TableDefinition()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:table_name = g:PipeGetCurrentWord()
   if l:table_name ==? ''
@@ -245,6 +268,7 @@ fun! g:PipeMySQL_TableDefinition()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -254,6 +278,7 @@ fun! g:PipeMySQL_TableDescription()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:table_name = g:PipeGetCurrentWord()
   if l:table_name ==? ''
@@ -264,6 +289,7 @@ fun! g:PipeMySQL_TableDescription()
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -294,6 +320,7 @@ fun! g:PipeMySQL_TableSelectAll(...)
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -303,11 +330,13 @@ fun! g:PipeMySQL_TableListing()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile(['show tables;'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
@@ -354,11 +383,13 @@ fun! g:PipeMySQL_DatabaseListing()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile(['show databases;'], s:tempfilename, 's')
 
   let l:shell_command .= ' -t < ' . s:tempfilename
 
+  let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
   call delete(s:tempfilename)
 endfun
