@@ -172,6 +172,14 @@ fun! s:Get_Pager_Option()
   endif
   return ''
 endfun
+
+fun! s:Get_MySQL_Option()
+  if exists('g:pipemysql_option')
+    return g:pipemysql_option
+  endif
+  return ''
+endfun
+
 " }}}
 
 " Run: {{{
@@ -179,6 +187,7 @@ fun! g:PipeMySQL_RunFile()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
+  let l:shell_command .= s:Get_MySQL_Option()
   let l:shell_command .= ' -t < ' . expand('%:p')
   let l:shell_command .= s:Get_Pager_Option()
   call g:Pipe(l:shell_command)
@@ -189,6 +198,7 @@ fun! g:PipeMySQL_RunLine(format)
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile([g:PipeGetCurrentLine()], s:tempfilename, 's')
 
@@ -204,6 +214,7 @@ fun! g:PipeMySQL_RunBlock(format) range
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:textlist = g:PipeGetSelectedTextAsList()
   if len(l:textlist) == 0
@@ -223,6 +234,7 @@ fun! g:PipeMySQL_RunCustom()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:custom_statement = g:PipeGetVar(s:var_mysql_custom_statement, "MySQL Statement » ", 11) "11: always prompt
   if l:custom_statement ==? ''
@@ -245,6 +257,7 @@ fun! g:PipeMySQL_TableDefinition()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:table_name = g:PipeGetCurrentWord()
   if l:table_name ==? ''
@@ -265,6 +278,7 @@ fun! g:PipeMySQL_TableDescription()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   let l:table_name = g:PipeGetCurrentWord()
   if l:table_name ==? ''
@@ -316,6 +330,7 @@ fun! g:PipeMySQL_TableListing()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile(['show tables;'], s:tempfilename, 's')
 
@@ -368,6 +383,7 @@ fun! g:PipeMySQL_DatabaseListing()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
   let l:shell_command .= s:Get_MySQL_Access()
+  let l:shell_command .= s:Get_MySQL_Option()
 
   call writefile(['show databases;'], s:tempfilename, 's')
 
