@@ -38,6 +38,7 @@ Based on [pipe.vim](https://github.com/NLKNguyen/pipe.vim)
 * Easily switch database on the fly
 * Include common queries to operate on the target where the cursor is at
 
+> by default, it works for filetype 'mysql'. so if you want to use othertype (ex. sql), set in your .vimrc like   `au BufRead,BufNewFile *.sql set filetype=mysql` 
 
 # Install
 Using [Vundle](https://github.com/VundleVim/Vundle.vim) plugin manager:
@@ -89,6 +90,8 @@ The plugin comes with default keymaps for MySQL filetype. To turn off, add `let 
 ## Use Preset Login Info
 In `.vimrc` you can store frequently used login info like the below snippet. The `description` value is what you see in the list of preset info in order to select.
 All other fields are optional. They can be set on the fly using the Set Actions; therefore, you don't have to store sensitive information like password in .vimrc if you don't want to.
+if in your preset mysql_password is not specified, then follow mysql-clients setting for that.
+(for example, find it from `.my.cnf`)
 
 ```VimL
 let g:pipemysql_login_info = [
@@ -113,6 +116,22 @@ let g:pipemysql_login_info = [
                              \ }
                            \ ]
 ```
+
+## Use Variables
+In `.vimrc` you can set mysql options by using variables.
+
+```VimL
+let g:pipemysql_option = '-vvv'
+let g:pipemysql_pager = 'grcat ~/.grcat'
+```
+
+the variables
+| variable         | description                                                                                                                                                                                                                                             |
+| -                | -                                                                                                                                                                                                                                                       |
+| pipemysql_option | set mysql custom option. for example (-vvv, -show-warnings). some options actually does not affect behavior cause the client was disconnected after executes. check: [mysql-doc](https://dev.mysql.com/doc/refman/5.7/en/mysql-command-options.html)    |
+| pipemysql_pager  | give pager option to mysql client. check: [mysql-doc](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-using-pager.html)                                                                                                                        |
+
+
 
 # 👋 Author
 
