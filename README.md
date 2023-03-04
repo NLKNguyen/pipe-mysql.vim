@@ -91,7 +91,9 @@ The plugin comes with default keymaps for MySQL filetype. To turn off, add `let 
 In `.vimrc` you can store frequently used login info like the below snippet. The `description` value is what you see in the list of preset info in order to select.
 All other fields are optional. They can be set on the fly using the Set Actions; therefore, you don't have to store sensitive information like password in .vimrc if you don't want to.
 if in your preset mysql_password is not specified, then follow mysql-clients setting for that.
-(for example, find it from `.my.cnf`)
+(for example, find it from `.my.cnf`).
+and you can also use defaults file for mysql access configuration.
+in below example, using .test.my.cnf file for 4th preset.
 
 ```VimL
 let g:pipemysql_login_info = [
@@ -113,8 +115,25 @@ let g:pipemysql_login_info = [
                              \ {
                              \    'description' : 'my local',
                              \    'mysql_hostname' : 'localhost',
+                             \ },
+                             \ {
+                             \    'decription' : 'using defaults file',
+                             \    'mysql_defaults_file' : '$HOME/.test.my.cnf'
                              \ }
                            \ ]
+```
+
+example for .test.my.cnf
+this configuration is can be used when your enviroments are diverse, and 
+maintain connection with seperated file as traditional in mysql configuration.
+
+```ini
+
+[mysql]
+host=my-awesome-prod-server
+user=my-user
+password=my_password
+
 ```
 
 ## Use Variables

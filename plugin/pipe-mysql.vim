@@ -17,13 +17,14 @@ let s:prefix = 'ac59330d'
 let s:tempfilename = '._temp_pipemysql_' . s:prefix
 
 " @brief names of variables in buffers; to access variable use for example: {s:var_ssh_address}
-let s:var_ssh_address    = 'b:' . s:prefix . 'ssh_address'
-let s:var_ssh_port       = 'b:' . s:prefix . 'ssh_port'
-let s:var_mysql_username = 'b:' . s:prefix . 'mysql_username'
-let s:var_mysql_password = 'b:' . s:prefix . 'mysql_password'
-let s:var_mysql_hostname = 'b:' . s:prefix . 'mysql_hostname'
-let s:var_mysql_port     = 'b:' . s:prefix . 'mysql_port'
-let s:var_mysql_database = 'b:' . s:prefix . 'mysql_database'
+let s:var_ssh_address            = 'b:' . s:prefix . 'ssh_address'
+let s:var_ssh_port               = 'b:' . s:prefix . 'ssh_port'
+let s:var_mysql_defaults_file     = 'b:' . s:prefix . 'mysql_files'
+let s:var_mysql_username         = 'b:' . s:prefix . 'mysql_username'
+let s:var_mysql_password         = 'b:' . s:prefix . 'mysql_password'
+let s:var_mysql_hostname         = 'b:' . s:prefix . 'mysql_hostname'
+let s:var_mysql_port             = 'b:' . s:prefix . 'mysql_port'
+let s:var_mysql_database         = 'b:' . s:prefix . 'mysql_database'
 
 let s:var_mysql_custom_statement = 'b:' . s:prefix . 'mysql_custom_statement'
 let s:var_mysql_select_limit     = 'b:' . s:prefix . 'mysql_select_limit'
@@ -54,13 +55,14 @@ fun! g:PipeMySQL_SelectPreset()
     redraw | echo "Invalid choice"
   else
     let l:login = g:pipemysql_login_info[l:choice - 1]
-    let {s:var_ssh_address}    = get(l:login, 'ssh_address', '')
-    let {s:var_ssh_port}       = get(l:login, 'ssh_port', '')
-    let {s:var_mysql_username} = get(l:login, 'mysql_username', '')
-    let {s:var_mysql_password} = get(l:login, 'mysql_password', '')
-    let {s:var_mysql_hostname} = get(l:login, 'mysql_hostname', '')
-    let {s:var_mysql_port}     = get(l:login, 'mysql_port', '')
-    let {s:var_mysql_database} = get(l:login, 'mysql_database', '')
+    let {s:var_ssh_address}        = get(l:login, 'ssh_address', '')
+    let {s:var_ssh_port}           = get(l:login, 'ssh_port', '')
+    let {s:var_mysql_defaults_file} = get(l:login, 'mysql_defaults_file', '')
+    let {s:var_mysql_username}     = get(l:login, 'mysql_username', '')
+    let {s:var_mysql_password}     = get(l:login, 'mysql_password', '')
+    let {s:var_mysql_hostname}     = get(l:login, 'mysql_hostname', '')
+    let {s:var_mysql_port}         = get(l:login, 'mysql_port', '')
+    let {s:var_mysql_database}     = get(l:login, 'mysql_database', '')
   endif
 endfun
 fun! g:PipeMySQL_SetRemote()
@@ -68,6 +70,10 @@ fun! g:PipeMySQL_SetRemote()
   if {s:var_ssh_address} !=? ''
     let {s:var_ssh_port}  = g:PipeGetVar(s:var_ssh_port, 'SSH Port = ', 11)
   endif
+endfun
+
+fun! g:PipeMySQL_SetDefaultsFile()
+  let {s:var_mysql_defaults_file} = g:PipeGetVar(s:var_mysql_defaults_file, 'MySQL DefaultsFile = ', 10)
 endfun
 
 fun! g:PipeMySQL_SetAccess()
@@ -95,6 +101,9 @@ fun! g:PipeMySQL_SetEmpty()
   if exists(s:var_ssh_port)
     unlet {s:var_ssh_port}
   endif
+  if exists(s:var_mysql_file)
+    unlet {s:var_mysql_file}
+  endif 
   if exists(s:var_mysql_username)
     unlet {s:var_mysql_username}
   endif
@@ -129,6 +138,16 @@ fun! s:Get_Remote()
   endif
 
   return l:ssh_info
+endfun
+
+fun! s:Get_MySQL_defaults_file()
+  let l:defaults_file_info = ''
+  let l:defaults_file = g:PipeGetVar(s:var_mysql_defaults_file, 'MySQL Default File = ')
+  if l:defaults_file !=? ''
+    let l:defaults_file_info .= '--defaults-file=' . l:defaults_file . ' '
+  endif
+  echo l:defaults_file_info
+  return l:defaults_file_info
 endfun
 
 fun! s:Get_MySQL_Access()
@@ -186,6 +205,7 @@ endfun
 fun! g:PipeMySQL_RunFile()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Option()
   let l:shell_command .= ' -t < ' . expand('%:p')
@@ -196,6 +216,7 @@ endfun
 fun! g:PipeMySQL_RunLine(format)
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -212,6 +233,7 @@ endfun
 fun! g:PipeMySQL_RunBlock(format) range
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -232,6 +254,7 @@ endfun
 fun! g:PipeMySQL_RunCustom()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -255,6 +278,7 @@ endfun
 fun! g:PipeMySQL_TableDefinition()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -276,6 +300,7 @@ endfun
 fun! g:PipeMySQL_TableDescription()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -328,6 +353,7 @@ endfun
 fun! g:PipeMySQL_TableListing()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Database()
   let l:shell_command .= s:Get_MySQL_Option()
@@ -346,6 +372,7 @@ endfun
 fun! g:PipeMySQL_DatabaseSwitching()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
 
   call writefile(['show databases;'], s:tempfilename, 's')
@@ -382,6 +409,7 @@ endfun
 fun! g:PipeMySQL_DatabaseListing()
   let l:shell_command = s:Get_Remote()
   let l:shell_command .= ' mysql '
+  let l:shell_command .= s:Get_MySQL_defaults_file()
   let l:shell_command .= s:Get_MySQL_Access()
   let l:shell_command .= s:Get_MySQL_Option()
 
@@ -395,7 +423,7 @@ fun! g:PipeMySQL_DatabaseListing()
 endfun
 " }}}
 
-" Mapping: {{{
+" Mapping: {{{{{{
 if !exists("g:pipemysql_no_mappings") || ! g:pipemysql_no_mappings
     autocmd Filetype mysql nnoremap <buffer> <leader>rf :call g:PipeMySQL_RunFile()<CR>
 
@@ -427,5 +455,6 @@ if !exists("g:pipemysql_no_mappings") || ! g:pipemysql_no_mappings
     autocmd Filetype mysql nnoremap <buffer> <leader>tD :call g:PipeMySQL_TableDefinition()<CR>
 endif
 " }}}
-
+"}}}
 " vim: foldmethod=marker
+" 
